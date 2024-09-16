@@ -13,12 +13,8 @@ def get_network_latency(x1,y1,z1,x2,y2,z2):
 def create_hosts_with_cores(hosts):
     all_hosts = []
     core_host = {}
-    for i in range(len(hosts)):
-        cores = int( hosts[i].attrib['core'])
-        for core in range(cores):
-            core_host_id = f"{hosts[i].attrib['id']}_{core+1}"
-            all_hosts.append(core_host_id)
-            core_host[core_host_id] = i
+    for i in range(len(hosts)):     
+        all_hosts.append(hosts[i].attrib['id'])
     return (all_hosts,core_host)
 
 
@@ -41,12 +37,12 @@ print(root[0][0].attrib)
 hosts_inside_zone = root[0]
 
 latency_matrix = create_latency_matrix(hosts_inside_zone)
-all_hosts,map_core_host = create_hosts_with_cores(hosts_inside_zone)
+all_hosts= hosts_inside_zone,map_core_host = create_hosts_with_cores(hosts_inside_zone)
 
-def get_latency(h1,h2,latency_matrix,map_core_host):
-    return (latency_matrix[map_core_host[h1]][map_core_host[h2]])
+def get_latency(h1,h2,latency_matrix):
+    return (latency_matrix[h1][h2])
     
-value =get_latency(all_hosts[0],all_hosts[0],latency_matrix,map_core_host)
+#value =get_latency(all_hosts[0],all_hosts[0],latency_matrix,map_core_host)
 
 
 path = 'req_0.json'
@@ -167,11 +163,11 @@ for j in range(0,total_tasks):
     task = t[j]
     host_with_data = local_data[task_d]
 
-    prob += x[host_with_data][task_d] ==1
+    prob += x[host_with_data][task_d] == 1
     
     for i in hosts:
-         prob += x[i][task_d_s] == x[i][task]
-         prob += x[i][task_d_r] == x[i][task]
+        prob += x[i][task_d_s] == x[i][task]
+        prob += x[i][task_d_r] == x[i][task]
 
 
 print('add as constraints de tarefa de comm')
@@ -193,7 +189,7 @@ for i in range(len(dag)):
         if(dag[i][j] == 1):
             for h in hosts:
                 for k in hosts:
-                        prob +=  C[t[i]] + p  *  x[k][t[j]] + get_latency(h,k,latency_matrix,map_core_host) * z[h][k][t[i]][t[j]]   <= C[t[j]]
+                        prob +=  C[t[i]] + p  *  x[k][t[j]] + get_latency(h,k,latency_matrix) * z[h][k][t[i]][t[j]]   <= C[t[j]]
 
 
 print('add as constraints de latencia')
